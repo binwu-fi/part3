@@ -203,7 +203,7 @@ app.listen(PORT, () => {
 */
 
 //Change previous code for "take backend to render"
-const PORT = process.env || 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
