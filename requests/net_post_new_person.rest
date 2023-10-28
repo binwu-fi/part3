@@ -1,0 +1,7 @@
+POST https://part3-render-v6c3.onrender.com/api/persons
+Content-Type: application/json
+
+{
+    "name": "Fredrick Hat Junior Internet",
+    "number": "050-123456789"
+  }
