@@ -60,6 +60,8 @@ morgan(function (tokens, req, res) {
 */
 app.use(express.json()); //this is needed for adding new contact
 
+app.use(express.static("build")); //this is for 3.11 frontend production build
+
 let phonebook = [
   {
     id: 1,
