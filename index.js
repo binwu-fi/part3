@@ -2,6 +2,9 @@
 const express = require("express");
 const app = express();
 const cors = require("cors"); //code for 3.9
+require("dotenv").config(); //code for 3.13
+
+const Person = require("./models/person"); // this line fot 3.13 and it deploy the module in the file
 
 const unknowEndpoint = (request, response) => {
   response.status(404).send({ error: "unknown endpoint" });
@@ -104,6 +107,7 @@ app.get("/info", (req, res) => {
 });
 
 //3.3
+/*
 app.get("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
   const person = phonebook.find((person) => person.id === id);
@@ -115,6 +119,13 @@ app.get("/api/persons/:id", (request, response) => {
   }
 
   response.json(person);
+});
+*/
+//previous code changed for 3.13
+app.get("/api/persons/:id", (request, response) => {
+  Person.findById(request.params.id).then((person) => {
+    response.json(person);
+  });
 });
 
 //3.4
@@ -159,11 +170,22 @@ app.post("/api/persons", (request, response) => {
   let find = false;
   //console.log(find);
 
+  /*
   const person = {
     name: body.name,
     number: body.number,
     id: generateId(),
   };
+  */
+  //previous code change to following (3.13)
+  const person = new Person({
+    name: body.name,
+    number: body.number,
+  });
+
+  person.save().then((savePerson) => {
+    response.json(savePerson);
+  });
 
   phonebook.forEach((item) => {
     //console.log("nimi: ", item.name);
@@ -205,9 +227,17 @@ app.listen(PORT, () => {
 */
 
 //Change previous code for "take backend to render"
+/*
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+*/
+
+//Change previous code for 3.13
+const PORT = process.env.PORT;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${port}`);
 });
 
 /*
