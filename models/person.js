@@ -24,4 +24,4 @@ personSchema.set("toJSON", {
   },
 });
 
-module.exports = mongoose.model("Person", noteSchema);
+module.exports = mongoose.model("Person", personSchema);
