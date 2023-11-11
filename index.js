@@ -6,6 +6,16 @@ require("dotenv").config(); //code for 3.13
 
 const Person = require("./models/person"); // this line fot 3.13 and it deploy the module in the file
 
+//following code line for 3.16
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  }
+  next(error);
+};
+//following code line for 3.16 ends
+
 const unknowEndpoint = (request, response) => {
   response.status(404).send({ error: "unknown endpoint" });
 };
@@ -20,16 +30,17 @@ morgan.token("request-body", (req) => {
   return JSON.stringify(req.body);
 });
 
-/*
+//palautettu käyttöön 3.16 varten
 const requestLogger = (request, response, next) => {
-  //console.log("Method:", request.method);
-  //console.log("Path:", request.path);
-  //console.log("Body:", request.body);
-  //console.log("---");
+  console.log("Method:", request.method);
+  console.log("Path:", request.path);
+  console.log("Body:", request.body);
+  console.log("---");
   next();
 };
-app.use(requestLogger);
-*/
+//app.use(requestLogger);
+//palautettu käyttöön 3.16 varten
+
 app.use(cors()); //code for 3.9
 app.use(
   morgan(function (tokens, req, res) {
@@ -65,6 +76,8 @@ app.use(express.json()); //this is needed for adding new contact
 
 app.use(express.static("build")); //this is for 3.11 frontend production build
 
+app.use(requestLogger); //palautettu käyttöön 3.16 varten
+
 let phonebook = [
   {
     id: 1,
@@ -93,8 +106,16 @@ app.get("/", (req, res) => {
   res.send("<h1>Hello Bin!</h1>");
 });
 
+/*
 app.get("/api/persons", (req, res) => {
   res.json(phonebook);
+});
+*/
+//change previous code to show phonebook from database
+app.get("/api/persons", (request, response) => {
+  Person.find({}).then((person) => {
+    response.json(person);
+  });
 });
 
 let tableSize = phonebook.length;
@@ -122,11 +143,35 @@ app.get("/api/persons/:id", (request, response) => {
 });
 */
 //previous code changed for 3.13
+/*
 app.get("/api/persons/:id", (request, response) => {
   Person.findById(request.params.id).then((person) => {
     response.json(person);
   });
 });
+*/
+
+//the previous code changed for 3.16
+app.get("/api/persons/:id", (request, response, next) => {
+  Person.findById(request.params.id)
+    .then((person) => {
+      if (person) {
+        response.json(person);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch((error) => next(error));
+});
+
+//alla 3.16 vanha loppuosa
+/*
+ {
+    console.log(error)
+    response.status(400).send({ error: 'malformatted id'})
+  });
+});
+*/
 
 //3.4
 app.delete("/api/persons/:id", (request, response) => {
@@ -218,6 +263,7 @@ app.post("/api/persons", (request, response) => {
 });
 */
 app.use(unknowEndpoint);
+app.use(errorHandler);
 
 /*
 const PORT = 3001;

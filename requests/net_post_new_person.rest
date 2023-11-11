@@ -2,6 +2,6 @@ POST https://part3-render-v6c3.onrender.com/api/persons
 Content-Type: application/json
 
 {
-    "name": "Fredrick Hat Senior Internet",
-    "number": "050-999999999"
+    "name": "Ninja Hoo",
+    "number": "050-1987456321"
   }
