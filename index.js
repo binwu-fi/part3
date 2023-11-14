@@ -78,6 +78,8 @@ app.use(express.static("build")); //this is for 3.11 frontend production build
 
 app.use(requestLogger); //palautettu käyttöön 3.16 varten
 
+// next part is not needed in exercise 3
+
 let phonebook = [
   {
     id: 1,
@@ -121,10 +123,24 @@ app.get("/api/persons", (request, response) => {
 let tableSize = phonebook.length;
 let date = new Date();
 
+/*
 app.get("/info", (req, res) => {
   res.send(`<p>Phonebook has info for ${tableSize} people</p>
   <p>${date}</p>`);
   //res.send("<h1>Hello Bin!</h1>");
+});
+*/
+//previous code changed to get tablesize from database
+
+app.get("/info", (request, response, next) => {
+  Person.countDocuments({})
+    .then((count) => {
+      console.log(count);
+      let result = `<p>Phonebook has info for ${count} people</p>
+  <p>${date}</p>`;
+      response.send(result);
+    })
+    .catch((error) => next(error));
 });
 
 //3.3
@@ -161,7 +177,10 @@ app.get("/api/persons/:id", (request, response, next) => {
         response.status(404).end();
       }
     })
-    .catch((error) => next(error));
+    .catch((error) => {
+      console.log(error);
+      response.status(400).send({ error: "malformatted id" });
+    });
 });
 
 //alla 3.16 vanha loppuosa
@@ -174,11 +193,37 @@ app.get("/api/persons/:id", (request, response, next) => {
 */
 
 //3.4
+/*
 app.delete("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
   phonebook = phonebook.filter((person) => person.id !== id);
 
   response.status(204).end();
+});
+*/
+//previous code changed for 3.15
+app.delete("/api/persons/:id", (request, response, next) => {
+  Person.findByIdAndRemove(request.params.id)
+    .then((result) => {
+      response.status(204).end();
+    })
+    .catch((error) => next(error));
+});
+
+//next code is for 3.17
+app.put("/api/persons/:id", (request, response, next) => {
+  const body = request.body;
+
+  const person = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then((updatedPerson) => {
+      response.json(updatedPerson);
+    })
+    .catch((error) => next(error));
 });
 
 //3.5 and 3.6
@@ -228,10 +273,12 @@ app.post("/api/persons", (request, response) => {
     number: body.number,
   });
 
-  person.save().then((savePerson) => {
-    response.json(savePerson);
+  person.save().then((savedPerson) => {
+    response.json(savedPerson);
   });
 
+  //next code is not needed
+  /*
   phonebook.forEach((item) => {
     //console.log("nimi: ", item.name);
     if (item.name === body.name) {
@@ -248,6 +295,7 @@ app.post("/api/persons", (request, response) => {
     phonebook = phonebook.concat(person);
     response.json(person);
   }
+  */
 });
 
 /*
