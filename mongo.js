@@ -1,27 +1,27 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose')
 
 if (process.argv.length < 3) {
-  console.log("give password as argument");
-  process.exit(1);
+  console.log('give password as argument')
+  process.exit(1)
 }
 
-const password = process.argv[2];
+const password = process.argv[2]
 
-const nameToAdd = process.argv[3];
+const nameToAdd = process.argv[3]
 
-const numberToAdd = process.argv[4];
+const numberToAdd = process.argv[4]
 
-const url = `mongodb+srv://binwufi:${password}@cluster0.hwvcrac.mongodb.net/personApp?retryWrites=true&w=majority`;
+const url = `mongodb+srv://binwufi:${password}@cluster0.hwvcrac.mongodb.net/personApp?retryWrites=true&w=majority`
 
-mongoose.set("strictQuery", false);
-mongoose.connect(url);
+mongoose.set('strictQuery', false)
+mongoose.connect(url)
 
 const personSchema = new mongoose.Schema({
   name: String,
   number: String,
-});
+})
 
-const Person = mongoose.model("Person", personSchema);
+const Person = mongoose.model('Person', personSchema)
 
 /*
 const person = new Person({
@@ -33,7 +33,7 @@ const person = new Person({
 const person = new Person({
   name: nameToAdd,
   number: numberToAdd,
-});
+})
 
 //following code add person to databae
 /*
@@ -47,23 +47,24 @@ person.save().then((result) => {
 
 if (nameToAdd !== undefined && numberToAdd !== undefined) {
   person.save().then((result) => {
-    console.log("added", nameToAdd, "number", numberToAdd, "to phonebook");
-    mongoose.connection.close();
-  });
+    //console.log('added', nameToAdd, 'number', numberToAdd, 'to phonebook') //replaced with following code line
+    result.forEach((person) => {console.log(person)})
+    mongoose.connection.close()
+  })
   //} else if (nameToAdd === undefined) {
   //  mongoose.connection.close();
   //} else if (numberToAdd === undefined) {
   //  mongoose.connection.close();
-} else if (nameToAdd === undefined && numberToAdd == undefined) {
+} else if (nameToAdd === undefined && numberToAdd === undefined) {
   Person.find({}).then((result) => {
-    console.log("phonebook:");
+    console.log('phonebook:')
     result.forEach((person) => {
-      console.log(person.name, person.number);
-    });
-    mongoose.connection.close();
-  });
+      console.log(person.name, person.number)
+    })
+    mongoose.connection.close()
+  })
 } else if (numberToAdd === undefined) {
-  mongoose.connection.close();
+  mongoose.connection.close()
 }
 //following code print database to screen
 /*

@@ -1,65 +1,65 @@
 //const http = require("http");
-const express = require("express");
-const app = express();
-const cors = require("cors"); //code for 3.9
-require("dotenv").config(); //code for 3.13
+const express = require('express')
+const app = express()
+const cors = require('cors') //code for 3.9
+require('dotenv').config() //code for 3.13
 
-const Person = require("./models/person"); // this line fot 3.13 and it deploy the module in the file
+const Person = require('./models/person') // this line fot 3.13 and it deploy the module in the file
 
 //following code line for 3.16
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message);
-  if (error.name === "CastError") {
-    return response.status(400).send({ error: "malformatted id" });
-  } else if (error.name === "ValidationError") {
-    return response.status(400).json({ error: error.message });
+  console.error(error.message)
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
   }
-  next(error);
-};
+  next(error)
+}
 //following code line for 3.16 ends
 
 const unknowEndpoint = (request, response) => {
-  response.status(404).send({ error: "unknown endpoint" });
-};
+  response.status(404).send({ error: 'unknown endpoint' })
+}
 
 //next two rows are for 3.7
 //var morgan = require("morgan");
 //app.use(morgan("tiny"));
 
 //3.8
-const morgan = require("morgan");
-morgan.token("request-body", (req) => {
-  return JSON.stringify(req.body);
-});
+const morgan = require('morgan')
+morgan.token('request-body', (req) => {
+  return JSON.stringify(req.body)
+})
 
 //palautettu käyttöön 3.16 varten
 const requestLogger = (request, response, next) => {
-  console.log("Method:", request.method);
-  console.log("Path:", request.path);
-  console.log("Body:", request.body);
-  console.log("---");
-  next();
-};
+  console.log('Method:', request.method)
+  console.log('Path:', request.path)
+  console.log('Body:', request.body)
+  console.log('---')
+  next()
+}
 //app.use(requestLogger);
 //palautettu käyttöön 3.16 varten
 
-app.use(cors()); //code for 3.9
+app.use(cors()) //code for 3.9
 app.use(
   morgan(function (tokens, req, res) {
     return [
       tokens.method(req, res),
       tokens.url(req, res),
       tokens.status(req, res),
-      tokens.res(req, res, "content-length"),
-      "-",
-      tokens["response-time"](req, res),
-      "ms",
-      tokens["request-body"](req, res),
+      tokens.res(req, res, 'content-length'),
+      '-',
+      tokens['response-time'](req, res),
+      'ms',
+      tokens['request-body'](req, res),
     ]
-      .join(" ")
-      .concat("\n-----");
+      .join(' ')
+      .concat('\n-----')
   })
-);
+)
 
 /*
 morgan(function (tokens, req, res) {
@@ -74,11 +74,11 @@ morgan(function (tokens, req, res) {
   ].join(" ");
 });
 */
-app.use(express.json()); //this is needed for adding new contact
+app.use(express.json()) //this is needed for adding new contact
 
-app.use(express.static("build")); //this is for 3.11 frontend production build
+app.use(express.static('build')) //this is for 3.11 frontend production build
 
-app.use(requestLogger); //palautettu käyttöön 3.16 varten
+app.use(requestLogger) //palautettu käyttöön 3.16 varten
 
 // next part is not needed in exercise 3
 /*
@@ -107,9 +107,9 @@ let phonebook = [
 ];
 */
 
-app.get("/", (req, res) => {
-  res.send("<h1>Hello Bin!</h1>");
-});
+app.get('/', (req, res) => {
+  res.send('<h1>Hello Bin!</h1>')
+})
 
 /*
 app.get("/api/persons", (req, res) => {
@@ -117,14 +117,14 @@ app.get("/api/persons", (req, res) => {
 });
 */
 //change previous code to show phonebook from database
-app.get("/api/persons", (request, response) => {
+app.get('/api/persons', (request, response) => {
   Person.find({}).then((person) => {
-    response.json(person);
-  });
-});
+    response.json(person)
+  })
+})
 
 // not need in exersice 3: let tableSize = phonebook.length;
-let date = new Date();
+let date = new Date()
 
 /*
 app.get("/info", (req, res) => {
@@ -135,16 +135,16 @@ app.get("/info", (req, res) => {
 */
 //previous code changed to get tablesize from database
 
-app.get("/info", (request, response, next) => {
+app.get('/info', (request, response, next) => {
   Person.countDocuments({})
     .then((count) => {
-      console.log(count);
+      console.log(count)
       let result = `<p>Phonebook has info for ${count} people</p>
-  <p>${date}</p>`;
-      response.send(result);
+  <p>${date}</p>`
+      response.send(result)
     })
-    .catch((error) => next(error));
-});
+    .catch((error) => next(error))
+})
 
 //3.3
 /*
@@ -171,20 +171,17 @@ app.get("/api/persons/:id", (request, response) => {
 */
 
 //the previous code changed for 3.16
-app.get("/api/persons/:id", (request, response, next) => {
+app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
     .then((person) => {
       if (person) {
-        response.json(person);
+        response.json(person)
       } else {
-        response.status(404).end();
+        response.status(404).end()
       }
     })
-    .catch((error) => {
-      console.log(error);
-      response.status(400).send({ error: "malformatted id" });
-    });
-});
+    .catch(error => next(error))
+})
 
 //alla 3.16 vanha loppuosa
 /*
@@ -205,66 +202,69 @@ app.delete("/api/persons/:id", (request, response) => {
 });
 */
 //previous code changed for 3.15
-app.delete("/api/persons/:id", (request, response, next) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
-    .then((result) => {
-      response.status(204).end();
+    .then(() => { //then((result)=> is not needed
+      response.status(204).end()
     })
-    .catch((error) => next(error));
-});
+    .catch((error) => next(error))
+})
 
 //next code is for 3.17
-app.put("/api/persons/:id", (request, response, next) => {
-  const body = request.body;
+app.put('/api/persons/:id', (request, response, next) => {
+  const body = request.body
 
   const person = {
     name: body.name,
     number: body.number,
-  };
+  }
 
   Person.findByIdAndUpdate(request.params.id, person, {
     new: true,
     runValidators: true,
-    context: "query",
+    context: 'query',
   })
     .then((updatedPerson) => {
-      response.json(updatedPerson);
+      response.json(updatedPerson)
     })
-    .catch((error) => next(error));
-});
+    .catch((error) => next(error))
+})
 
-//3.5 and 3.6
-
+//3.5 and 3.6 below code needs
+/*
 function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
+  return Math.floor(Math.random() * max)
 }
 
+
 const generateId = () => {
-  const newId = getRandomInt(1000000);
-  return newId;
-};
-app.post("/api/persons", (request, response, next) => {
-  const body = request.body;
+  const newId = getRandomInt(1000000)
+  return newId
+}
+*/
+app.post('/api/persons', (request, response, next) => {
+  const body = request.body
 
   if (!body.name && !body.number) {
     return response.status(400).json({
-      error: "content is empty",
-    });
+      error: 'content is empty',
+    })
   }
 
   if (!body.name) {
     return response.status(400).json({
-      error: "name is empty",
-    });
+      error: 'name is empty',
+    })
   }
 
   if (!body.number) {
     return response.status(400).json({
-      error: "number is empty",
-    });
+      error: 'number is empty',
+    })
   }
 
-  let find = false;
+  //below code is not needed in 3.22
+  //let find = false
   //console.log(find);
 
   /*
@@ -278,14 +278,14 @@ app.post("/api/persons", (request, response, next) => {
   const person = new Person({
     name: body.name,
     number: body.number,
-  });
+  })
 
   person
     .save()
     .then((savedPerson) => {
-      response.json(savedPerson);
+      response.json(savedPerson)
     })
-    .catch((error) => next(error)); //added for 3.19
+    .catch((error) => next(error)) //added for 3.19
 
   //next code is not needed
   /*
@@ -306,7 +306,7 @@ app.post("/api/persons", (request, response, next) => {
     response.json(person);
   }
   */
-});
+})
 
 /*
   const person = {
@@ -320,8 +320,8 @@ app.post("/api/persons", (request, response, next) => {
   response.json(person);
 });
 */
-app.use(unknowEndpoint);
-app.use(errorHandler);
+app.use(unknowEndpoint)
+app.use(errorHandler)
 
 /*
 const PORT = 3001;
@@ -339,10 +339,10 @@ app.listen(PORT, () => {
 */
 
 //Change previous code for 3.13
-const PORT = process.env.PORT;
+const PORT = process.env.PORT
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  console.log(`Server running on port ${PORT}`)
+})
 
 /*
 var jsonData = [{
