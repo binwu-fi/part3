@@ -11,6 +11,8 @@ const errorHandler = (error, request, response, next) => {
   console.error(error.message);
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).json({ error: error.message });
   }
   next(error);
 };
@@ -79,7 +81,7 @@ app.use(express.static("build")); //this is for 3.11 frontend production build
 app.use(requestLogger); //palautettu käyttöön 3.16 varten
 
 // next part is not needed in exercise 3
-
+/*
 let phonebook = [
   {
     id: 1,
@@ -103,6 +105,7 @@ let phonebook = [
   },
   { id: 5, name: "Matti Meikkalainen", number: "050-987654321" },
 ];
+*/
 
 app.get("/", (req, res) => {
   res.send("<h1>Hello Bin!</h1>");
@@ -120,7 +123,7 @@ app.get("/api/persons", (request, response) => {
   });
 });
 
-let tableSize = phonebook.length;
+// not need in exersice 3: let tableSize = phonebook.length;
 let date = new Date();
 
 /*
@@ -219,7 +222,11 @@ app.put("/api/persons/:id", (request, response, next) => {
     number: body.number,
   };
 
-  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+  Person.findByIdAndUpdate(request.params.id, person, {
+    new: true,
+    runValidators: true,
+    context: "query",
+  })
     .then((updatedPerson) => {
       response.json(updatedPerson);
     })
@@ -236,7 +243,7 @@ const generateId = () => {
   const newId = getRandomInt(1000000);
   return newId;
 };
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
   const body = request.body;
 
   if (!body.name && !body.number) {
@@ -273,9 +280,12 @@ app.post("/api/persons", (request, response) => {
     number: body.number,
   });
 
-  person.save().then((savedPerson) => {
-    response.json(savedPerson);
-  });
+  person
+    .save()
+    .then((savedPerson) => {
+      response.json(savedPerson);
+    })
+    .catch((error) => next(error)); //added for 3.19
 
   //next code is not needed
   /*

@@ -17,8 +17,29 @@ mongoose
   });
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  //name: { type: String, minlength: 3, required: true },
+  //improved version of name check
+  name: {
+    type: String,
+    minlength: 3,
+    validate: {
+      validator: (v) =>
+        /^[A-Za-zÄÖÅäöå]+[A-Za-zÄÖÅäöå\s]+[A-Za-zÄÖÅäöå]+$/.test(v),
+      message: (props) =>
+        `${props.value} does not fulfill minimal requirement (3 letters)`,
+    },
+    required: true,
+  },
+  number: {
+    type: String,
+    minlength: 8,
+    validate: {
+      validator: (v) => /(^\d{2}[-]\d{6})|(^\d{3}[-]\d{5})/.test(v),
+      message: (props) =>
+        `${props.value} is not in correct format. It should be XX-XXXXXX OR XXX-XXXXX`,
+    },
+    required: true,
+  },
 });
 
 personSchema.set("toJSON", {
